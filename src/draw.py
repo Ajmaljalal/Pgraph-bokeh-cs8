@@ -2,14 +2,17 @@ import math
 
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
-from bokeh.models import GraphRenderer, StaticLayoutProvider, Oval
+from bokeh.models import GraphRenderer, StaticLayoutProvider
 from bokeh.models import ColumnDataSource, LabelSet, Label
 from bokeh.palettes import Spectral8
+from bokeh.models.markers import Circle, Diamond, Hex
 
 from graph import *
 
 graph_data = Graph()
-graph_data.debug_create_test_data()
+#graph_data.debug_create_test_data()
+graph_data.randomize(3, 3)
+graph_data.bfs(graph_data.vertexes[0])
 
 N = len(graph_data.vertexes)
 node_indices = list(range(N))
@@ -29,30 +32,32 @@ source = ColumnDataSource(data=dict(height=y,
 
 
 labels = LabelSet(x='weight', y='height', text='names', level='glyph',
-              x_offset=5, y_offset=5, source=source, render_mode='canvas')
+            source=source, render_mode='canvas', text_align='center', text_baseline='middle')
 
-
-citation = Label(x=70, y=70, x_units='screen', y_units='screen',
-                 render_mode='css',
-                 border_line_color='white', border_line_alpha=1.0,
-                 background_fill_color='white', background_fill_alpha=1.0)
 
 color_list = []
 for vertex in graph_data.vertexes:
     color_list.append(vertex.color)
 
-plot = figure(title='Graph Layout Demonstration', x_range=(0,500), y_range=(0,500),
-              tools='', toolbar_location=None)
+plot = figure(x_range=(0,500), y_range=(0,500),
+              toolbar_location='right', plot_width=1100, plot_height=800)
 
 graph = GraphRenderer()
 
 graph.node_renderer.data_source.add(node_indices, 'index')
 graph.node_renderer.data_source.add(color_list, 'color')
-graph.node_renderer.glyph = Oval(height=20, width=20, fill_color='color')
+graph.node_renderer.glyph = Hex(size=40, line_color="#3288bd", line_width=3, fill_color='color')
+
+start_points = []
+end_points = []
+for start_index, v in enumerate(graph_data.vertexes):
+    for e in v.edges:
+        start_points.append(start_index)
+        end_points.append(graph_data.vertexes.index(e.destination))
 
 graph.edge_renderer.data_source.data = dict(
-    start=[0, 1, 2, 3],
-    end=[1, 2, 3, 4])
+    start=start_points, #node_indices[0:-1]
+    end=end_points )
 
 ### start of layout code
 
@@ -64,7 +69,6 @@ graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
 plot.renderers.append(graph)
 plot.renderers.append(labels)
-plot.renderers.append(citation)
 
 output_file('graph.html')
 show(plot)
