@@ -1,9 +1,4 @@
 import random
-from bokeh.palettes import Spectral8, Set3, Paired
-
-CIRCLE_SIZE=20
-WIDTH=500
-HEIGHT=300
 
 class Edge:
     def __init__(self, destination):
@@ -46,21 +41,46 @@ class Graph:
         self.vertexes.extend([debug_vertex_1, debug_vertex_2, debug_vertex_3, debug_vertex_4, debug_vertex_5, debug_vertex_6])
 
 
-    def randomize(self, width, height, probability=50):
-        def connect_verts(v0, v1):
+    def randomize(self, width, height, pxBox, probability):
+        def connectVerts(v0, v1):
             v0.edges.append(Edge(v1))
             v1.edges.append(Edge(v0))
 
-        random.seed()
-        N = height * width
-        for i in range(N):
-            self.vertexes.append(Vertex('t' + str(i), x=random.randrange(CIRCLE_SIZE//2, WIDTH - CIRCLE_SIZE//2, 1), y=random.randrange(CIRCLE_SIZE//2, HEIGHT - CIRCLE_SIZE//2, 1)))
+        grid = []
+        count = 0
 
-        for vertex in self.vertexes:
-            if (random.randrange(100) < probability):
-                connect_verts(vertex, self.vertexes[random.randrange(N-1)])
-            if (random.randrange(100) < probability):
-                connect_verts(vertex, self.vertexes[random.randrange(N-1)])
+        for y in range(height):
+            row = []
+            for x in range(width):
+                v = Vertex('default', x=300, y=300)
+                v.value = f"t{count}"
+                count += 1
+                row.append(v)
+            grid.append(row)
+
+        for y in range(height):
+            for x in range(width):
+                if (y < height - 1):
+                    if random.randint(0, 50) < probability:
+                        connectVerts(grid[y][x], grid[y+1][x])
+                if (x < width - 1):
+                    if random.randint(0, 50) < probability:
+                        connectVerts(grid[y][x], grid[y][x+1])
+
+        boxBuffer = 0.8
+        boxInner = pxBox * boxBuffer
+        boxInnerOffset = (pxBox - boxInner) // 2
+
+        for y in range(height):
+            for x in range(width):
+                grid[y][x].pos['x'] = (
+                    x * pxBox + boxInnerOffset + (random.randint(0, 50) //50) * boxInner) % 1
+                grid[y][x].pos['y'] = (
+                    y * pxBox + boxInnerOffset + (random.randint(0, 50) // 50) * boxInner) % 1
+
+        for y in range(height):
+            for x in range(width):
+                self.vertexes.append(grid[y][x])
 
 
 
@@ -81,8 +101,8 @@ class Graph:
                     found.append(edge.destination)
                     queue.append(edge.destination)
                     edge.destination.color = random_color
+            
             queue.pop(0)
-
         return found
 
 

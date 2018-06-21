@@ -11,7 +11,7 @@ from graph import *
 
 graph_data = Graph()
 #graph_data.debug_create_test_data()
-graph_data.randomize(3, 3)
+graph_data.randomize(3, 3, 10, .6)
 graph_data.bfs(graph_data.vertexes[0])
 
 N = len(graph_data.vertexes)
@@ -40,7 +40,7 @@ for vertex in graph_data.vertexes:
     color_list.append(vertex.color)
 
 plot = figure(x_range=(0,500), y_range=(0,500),
-              toolbar_location='right', plot_width=1100, plot_height=800)
+              toolbar_location='right', plot_width=900, plot_height=500)
 
 graph = GraphRenderer()
 
