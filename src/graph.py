@@ -28,7 +28,7 @@ class Graph:
         debug_edge_3 = Edge(debug_vertex_4)
         debug_edge_4 = Edge(debug_vertex_5)
         debug_edge_5 = Edge(debug_vertex_6)
-        debug_edge_6 = Edge(debug_vertex_2)
+        debug_edge_6 = Edge(debug_vertex_1)
         
 
         debug_vertex_1.edges.append(debug_edge_1)
@@ -57,6 +57,7 @@ class Graph:
                 count += 1
                 row.append(v)
             grid.append(row)
+            print(v.value)
 
         for y in range(height):
             for x in range(width):
@@ -73,14 +74,13 @@ class Graph:
 
         for y in range(height):
             for x in range(width):
-                grid[y][x].pos['x'] = (
-                    x * pxBox + boxInnerOffset + (random.randint(0, 50) //50) * boxInner) % 1
-                grid[y][x].pos['y'] = (
-                    y * pxBox + boxInnerOffset + (random.randint(0, 50) // 50) * boxInner) % 1
+                grid[y][x].pos['x'] = int((x * pxBox + boxInnerOffset + (random.uniform(0, 50)) * boxInner)) 
+                grid[y][x].pos['y'] = int((y * pxBox + boxInnerOffset + (random.uniform(0, 50)) * boxInner))
 
         for y in range(height):
             for x in range(width):
                 self.vertexes.append(grid[y][x])
+
 
 
 
@@ -104,5 +104,12 @@ class Graph:
             
             queue.pop(0)
         return found
+
+    def connected_components(self):
+       searched=[]
+       for vertex in self.vertexes:
+           if vertex not in searched:
+               searched.append(self.bfs(vertex))
+       return searched
 
 
